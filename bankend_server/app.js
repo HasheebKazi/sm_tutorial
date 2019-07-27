@@ -5,6 +5,8 @@ const path = require('path');
 const multer = require('multer');
 
 const feed_routes = require('./routes/routes_feed');
+const auth_routes = require('./routes/routes_auth');
+
 
 const app = express();
 
@@ -46,12 +48,16 @@ app.use((req, res, next) => {
 
 
 app.use('/feed', feed_routes);
+app.use('/auth', auth_routes);
+
 app.use((error, req, res, next) => {
     console.log(error);
     const status = error.statusCode || 500;
     const message = error.message;
+    const data = error.data;
     return res.status(status).json({
-        message: message
+        message: message,
+        data: data
     });
 });
 
