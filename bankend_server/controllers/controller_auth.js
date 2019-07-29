@@ -3,6 +3,7 @@ const User = require('../models/user');
 const fs = require('fs');
 const path = require('path');
 const bcrypt = require('bcryptjs');
+const jsonWebToken = require('jsonwebtoken');
 
 exports.signup = (req, res, next) => {
     const errors = validationResult(req)
@@ -39,3 +40,42 @@ exports.signup = (req, res, next) => {
         });
 
 };
+
+exports.postLogin = (req, res, next) => {
+    const email = req.body.email;
+    const password = req.body.email;
+    let loadedUser;
+    User.findOne({
+        email: email
+    })
+    .then(user => {
+        if (!user) {
+            const error = new Error('No user found');
+            error.statusCode = 401;
+            throw error;
+        }
+        loadedUser= user;
+        return bcrypt.compare(password, user.password);
+    })
+    .then(isEqual => {
+        if (!isEqual) {
+            const error = new Error('Incorrect email or passowrd');
+            error.statusCode = 401;
+            throw error;
+        }
+        const token = jsonWebToken.sign({
+            email: email,
+            userId: loadedUser._id.toString()
+        }, 'secret', { expiresIn: '1h'});
+        return res.status(200).json({
+            message: 'successful login',
+            token: token
+        })
+    })
+    .catch(err => {
+        if (!err.statusCode) {
+            err.statusCode = 500;
+        }
+        next(err);
+    })
+}
