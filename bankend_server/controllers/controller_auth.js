@@ -43,7 +43,7 @@ exports.signup = (req, res, next) => {
 
 exports.postLogin = (req, res, next) => {
     const email = req.body.email;
-    const password = req.body.email;
+    const password = req.body.password;
     let loadedUser;
     User.findOne({
         email: email
