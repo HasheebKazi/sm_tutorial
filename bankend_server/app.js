@@ -61,7 +61,9 @@ app.use((error, req, res, next) => {
     });
 });
 
-const MONGODB_URI = 'mongodb+srv://node_project:AkWcOzQBkbWJdXoA@summer-2019-fo8l7.mongodb.net/messages';
+const MONGODB_URI = require('./magic').MONGO_URI;
+console.log(MONGODB_URI);
+
 mongoose.connect(MONGODB_URI).then((result) => {
     app.listen(8080);
 }).catch((err) => {
