@@ -4,13 +4,14 @@ const fs = require('fs');
 const path = require('path');
 const perPage = 2;
 const User = require('../models/user');
+const io = require('../socket');
 
 exports.getPosts = async (req, res, next) => {
     const currentPage = req.query.page || 1;
     // async await lets you write asynchronous code that looks synchronous, behind the scenes its transfromed into usual asynchronous code
     try {
         const totalItems = await Post.find().count();
-        const posts = await Post.find().skip((currentPage - 1)* perPage).limit(perPage)
+        const posts = await Post.find().populate('creator').sort({createdAt: -1}).skip((currentPage - 1)* perPage).limit(perPage)
 
         if (!posts) {
             const error = new Error('No post found');
@@ -68,6 +69,10 @@ exports.createPost = (req, res, next) => {
     })
     .then(result => {
         console.log('post data', post);
+        io.getIO().emit('posts', {
+            action: 'create',
+            post: post
+        });
         res.status(201).json({
             message: 'post created successfully',
             post: post,
@@ -128,8 +133,9 @@ exports.editPost = (req, res, next) => {
         throw error
     }
 
+
     
-    Post.findById(postId)
+    Post.findById(postId).populate('creator')
     .then(post => {
         if (!post) {
             const error = new Error('No post found');
@@ -137,7 +143,7 @@ exports.editPost = (req, res, next) => {
             throw error;
         }
 
-        if (req.userId !== post.creator.toString()) {
+        if (req.userId !== post.creator._id.toString()) {
             const error = new Error('Not authroized');
             error.statusCode = 403;
             throw error;
@@ -153,6 +159,10 @@ exports.editPost = (req, res, next) => {
         return post.save();
     })
     .then(result => {
+        io.getIO().emit('posts', {
+            action: 'update',
+            post: result
+        });
         return res.status(200).json({
             message: "updated post",
             post: result
@@ -193,6 +203,10 @@ exports.deletePost = (req, res, next) => {
         return user.save();
     })
     .then(result => {
+        io.getIO().emit('posts', {
+            action: 'delete',
+            post: postId
+        });
         return res.status(200).json({
             message: "deleted post"
         })

@@ -1,5 +1,5 @@
 const jwt = require('jsonwebtoken');
-const secretKey = require('../magic');
+const { secretKey } = require('../magic');
 
 module.exports = (req, res, next) => {
     const authHeader = req.get('Authorization');

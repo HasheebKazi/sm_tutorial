@@ -65,7 +65,14 @@ const MONGODB_URI = require('./magic').MONGO_URI;
 console.log(MONGODB_URI);
 
 mongoose.connect(MONGODB_URI).then((result) => {
-    app.listen(8080);
+    const server = app.listen(8080);
+
+    // websocket channels, builds on http server from 
+    const io = require('./socket').init(server);
+    io.on('connection', socket => {
+        console.log('================== client connected ==================');
+    });
+
 }).catch((err) => {
     console.log(err)
 })
