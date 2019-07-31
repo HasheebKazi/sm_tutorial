@@ -1,4 +1,5 @@
 const jwt = require('jsonwebtoken');
+const secretKey = require('../magic');
 
 module.exports = (req, res, next) => {
     const authHeader = req.get('Authorization');
@@ -12,7 +13,7 @@ module.exports = (req, res, next) => {
     const token = authHeader.split(' ')[1];
     let decodedToken;
     try {
-        decodedToken = jwt.verify(token, 'secret');
+        decodedToken = jwt.verify(token, secretKey);
     } catch(err) {
         err.statusCode = 500;
         throw err;

@@ -5,17 +5,13 @@ const path = require('path');
 const perPage = 2;
 const User = require('../models/user');
 
-exports.getPosts = (req, res, next) => {
+exports.getPosts = async (req, res, next) => {
     const currentPage = req.query.page || 1;
-    let totalItems;
-    Post.find().count()
-    .then(count => {
-        totalItems = count;
-        return Post.find()
-        .skip((currentPage - 1)* perPage)
-        .limit(perPage);
-    })
-    .then(posts => {
+    // async await lets you write asynchronous code that looks synchronous, behind the scenes its transfromed into usual asynchronous code
+    try {
+        const totalItems = await Post.find().count();
+        const posts = await Post.find().skip((currentPage - 1)* perPage).limit(perPage)
+
         if (!posts) {
             const error = new Error('No post found');
             error.statusCode = 404;
@@ -26,13 +22,12 @@ exports.getPosts = (req, res, next) => {
             posts: posts,
             totalItems: totalItems
         });
-    })
-    .catch(err => {
+    } catch(err) {
         if (!err.statusCode) {
             err.statusCode = 500;
         }
         next(err);
-    });
+    }
 };
 
 exports.createPost = (req, res, next) => {

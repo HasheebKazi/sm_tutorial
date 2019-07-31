@@ -4,6 +4,7 @@ const fs = require('fs');
 const path = require('path');
 const bcrypt = require('bcryptjs');
 const jsonWebToken = require('jsonwebtoken');
+const { secretKey } = require('../magic');
 
 exports.signup = (req, res, next) => {
     const errors = validationResult(req)
@@ -66,7 +67,7 @@ exports.postLogin = (req, res, next) => {
         const token = jsonWebToken.sign({
             email: email,
             userId: loadedUser._id.toString()
-        }, 'secret', { expiresIn: '1h'});
+        }, secretKey, { expiresIn: '1h'});
         return res.status(200).json({
             message: 'successful login',
             token: token
