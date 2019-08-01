@@ -63,7 +63,7 @@ class Feed extends Component {
       };
     });
   };
-
+  
   updatePost = post => {
     this.setState(prevState => {
       const updatedPosts = [...prevState.posts];

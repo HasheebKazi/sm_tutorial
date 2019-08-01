@@ -46,10 +46,6 @@ app.use((req, res, next) => {
     next();
 });
 
-
-app.use('/feed', feed_routes);
-app.use('/auth', auth_routes);
-
 app.use((error, req, res, next) => {
     console.log(error);
     const status = error.statusCode || 500;
