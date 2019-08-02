@@ -40,6 +40,7 @@ app.use((req, res, next) => {
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'OPTIONS, GET, POST, PUT, PATCH, DELETE');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+    
     if (req.method === 'OPTIONS') {
         return res.sendStatus(200);
     }
@@ -48,7 +49,8 @@ app.use((req, res, next) => {
 
 app.use('/graphql', graphqlHttp({
     schema: graphqlSchema,
-    rootValue: graphqlResolver
+    rootValue: graphqlResolver,
+    graphiql: true
 }));
 
 app.use((error, req, res, next) => {
