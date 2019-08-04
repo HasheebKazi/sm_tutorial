@@ -8,6 +8,8 @@ const graphqlHttp = require('express-graphql');
 const graphqlSchema = require('./graphql/schema');
 const graphqlResolver = require('./graphql/resolvers');
 
+const authController = require('./middleware/auth');
+
 const app = express();
 
 const imageFileStorage = multer.diskStorage({
@@ -46,6 +48,9 @@ app.use((req, res, next) => {
     }
     next();
 });
+
+// user authentication
+app.use(authController);
 
 app.use('/graphql', graphqlHttp({
     schema: graphqlSchema,

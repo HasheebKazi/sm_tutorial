@@ -23,10 +23,13 @@ module.exports = (req, res, next) => {
         return next();
     }
     if(!decodedToken) {
-        const error = new Error('Not Authenticated.');
-        error.statusCode = 401;
-        throw error;
+        // const error = new Error('Not Authenticated.');
+        // error.statusCode = 401;
+        // throw error;
+        req.isAuth = false;
+        return next();
     }
     req.userId = decodedToken.userId;
+    req.isAuth = true;
     next();
 }
