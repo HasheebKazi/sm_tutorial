@@ -4,9 +4,11 @@ const { secretKey } = require('../magic');
 module.exports = (req, res, next) => {
     const authHeader = req.get('Authorization');
     if (!authHeader) {
-        const error = new Error('Not Authenticated.');
-        error.statusCode = 401;
-        throw error;
+        // const error = new Error('Not Authenticated.');
+        // error.statusCode = 401;
+        // throw error;
+        req.isAuth = false;
+        return next();
     }
 
 
@@ -15,8 +17,10 @@ module.exports = (req, res, next) => {
     try {
         decodedToken = jwt.verify(token, secretKey);
     } catch(err) {
-        err.statusCode = 500;
-        throw err;
+        // err.statusCode = 500;
+        // throw err;
+        req.isAuth = false;
+        return next();
     }
     if(!decodedToken) {
         const error = new Error('Not Authenticated.');
