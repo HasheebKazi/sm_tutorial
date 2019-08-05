@@ -10,6 +10,7 @@ const graphqlSchema = require('./graphql/schema');
 const graphqlResolver = require('./graphql/resolvers');
 
 const authController = require('./middleware/auth');
+const {clearImage} = require('./util/util');
 
 const app = express();
 
@@ -97,10 +98,10 @@ mongoose.connect(MONGODB_URI).then((result) => {
     console.log(err)
 })
 
-const clearImage = (filePath) => {
-    filePath = path.join(__dirname, filePath);
-    fs.unlink(filePath, (err) => {
-        console.log(err);
-    })
-}
+// const clearImage = (filePath) => {
+//     filePath = path.join(__dirname, filePath);
+//     fs.unlink(filePath, (err) => {
+//         console.log(err);
+//     })
+// }
 

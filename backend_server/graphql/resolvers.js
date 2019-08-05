@@ -6,7 +6,7 @@ const jwt = require('jsonwebtoken');
 const { secretKey } = require('../magic');
 
 const Post = require('../models/post')
-
+const {clearImage} = require('../util/util');
 
 module.exports = {
     createUser: async function({ userInput }, req) {
@@ -184,11 +184,11 @@ module.exports = {
         }
 
         const errors = []
-        if (!validator.isEmail(userInput.email)) {
-            errors.push({ message: 'Email is invalid.'});
+        if (validator.isEmpty(postInput.title) || !validator.isLength(postInput.title, { min: 5 })) {
+            errors.push({ message: 'Title is invalid.'});
         }
-        if (validator.isEmpty(userInput.password) || !validator.isLength(userInput.password, { min: 5})) {
-            errors.push({ message: 'Password is invalid.'});
+        if (validator.isEmpty(postInput.content) || !validator.isLength(postInput.content, { min: 5})) {
+            errors.push({ message: 'Content is invalid.'});
         }
         if (errors.length > 0) {
             const error = new Error('Invalid Input');
@@ -203,7 +203,7 @@ module.exports = {
             post.imageUrl = postInput.imageUrl;
         }
 
-        const updatePost = await post.save();
+        const updatedPost = await post.save();
 
         return {
             ...updatedPost._doc,
@@ -211,5 +211,47 @@ module.exports = {
             createdAt: updatedPost.createdAt.toISOString(),
             updatedAt: updatedPost.updatedAt.toISOString()
         };
+    },
+
+    deletePost: async function({id} , req) {
+        if(!req.isAuth) {
+            const error = new Error('User not authenticated');
+            error.code = 422;
+            throw error;
+        }
+
+        const post = await Post.findById(id);
+
+        if (!post) {
+            const error = new Error('No post found.');
+            error.code = 401;
+            throw error;
+        }
+
+        if (post.creator.toString() !== req.userId.toString()) {
+            const error = new Error('Authentication Error.');
+            error.code = 403;
+            throw error;
+        }   
+        
+        try {
+            clearImage('../' + post.imageUrl);
+
+            await Post.findByIdAndRemove(id);
+
+            console.log('============================', req.userId)
+
+            const user = await User.findById(req.userId);
+            user.posts.pull(id);
+
+            await user.save();
+
+            return true;
+
+        } catch(err) {
+            console.log(err);
+            return false;
+        }
+
     }
 };
