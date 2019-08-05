@@ -53,7 +53,7 @@ class Feed extends Component {
 
     let graphqlQuery = {
       query: ` {
-        posts {
+        posts(page: ${page}) {
           posts {
             _id
             title
@@ -211,6 +211,7 @@ class Feed extends Component {
             );
             updatedPosts[postIndex] = post;
           } else {
+            updatedPosts.pop();
             updatedPosts.unshift(post);
           }
           return {
