@@ -242,6 +242,11 @@ module.exports = {
             console.log('============================', req.userId)
 
             const user = await User.findById(req.userId);
+            if (!user) {
+                const error = new Error('Invalid User');
+                error.code = 401;
+                throw error;
+            }
             user.posts.pull(id);
 
             await user.save();
@@ -253,5 +258,47 @@ module.exports = {
             return false;
         }
 
+    },
+
+    user: async function( _, req) {
+        if(!req.isAuth) {
+            const error = new Error('User not authenticated');
+            error.code = 422;
+            throw error;
+        }
+
+        const user = await User.findById(req.userId);
+        if (!user) {
+            const error = new Error('Invalid User');
+            error.code = 401;
+            throw error;
+        }
+
+        return {
+            ...user._doc,
+            _id: user._id.toString()
+        }
+    },
+
+    updateStatus: async function({status}, req) {
+        if(!req.isAuth) {
+            const error = new Error('User not authenticated');
+            error.code = 422;
+            throw error;
+        }
+
+        const user = await User.findById(req.userId);
+        if (!user) {
+            const error = new Error('Invalid User');
+            error.code = 401;
+            throw error;
+        }
+
+        user.status = status;
+        await user.save();
+        return {
+            ...user._doc,
+            _id: user._id.toString()
+        }
     }
 };
